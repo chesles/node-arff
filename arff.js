@@ -13,11 +13,16 @@ var fs = require('fs')
  * See http://axon.cs.byu.edu/~martinez/classes/478/stuff/arff.html
  * or http://weka.wikispaces.com/ARFF+%28developer+version%29
  * for a description of the Attribute-Relation File Format
+ *
+ * Note: This parser conforms more closely to the simplified version used at BYU
+ *
+ * TODO: handle quoted names with spaces
+ * TODO: handle date types
  */
 module.exports = function arff(input) {
   var is;
   var emitter = new EventEmitter();
-  var state;
+  var section;
 
   if (typeof input === 'string') {
     is = fs.createReadStream(input);
@@ -33,6 +38,8 @@ module.exports = function arff(input) {
   }
   var handlers = {
     line: function(line) {
+      if (!section) section = 'header';
+
       var chunks = line.trim().split(/[\s]+/);
       if (chunks.length < 1) return;
       // comments
@@ -41,26 +48,28 @@ module.exports = function arff(input) {
       }
       // relation name
       else if (/^@RELATION/i.test(chunks[0])) {
-        if (state == 'data') {
-          return emitter.emit('error', new Error('@RELATION found after DATA'));
+        if (section !== 'header') {
+          return emitter.emit('error', new Error('@RELATION found outside of header'));
         }
         emitter.emit('relation', chunks[1])
       }
       // attribute spec
       else if (/^@ATTRIBUTE/i.test(chunks[0])) {
-        if (state == 'data') {
-          return emitter.emit('error', new Error('@ATTRIBUTE found after DATA'));
+        if (section != 'header') {
+          return emitter.emit('error', new Error('@ATTRIBUTE found outside of header section'));
         }
-        emitter.emit('attribute', chunks[1], chunks.slice(2).join(' '));
+        var name = chunks[1];
+        var type = parseAttributeType(chunks.slice(2).join(' '));
+        emitter.emit('attribute', name, type);
       }
       else if (/^@DATA/i.test(chunks[0])) {
-        if (state == 'data') {
+        if (section == 'data') {
           return emitter.emit('error', new Error('@DATA found after DATA'));
         }
-        state = 'data';
+        section = 'data';
       }
       else {
-        if (state == 'data') {
+        if (section == 'data') {
           emitter.emit('data', chunks.join('').split(','));
         }
       }
@@ -79,7 +88,43 @@ module.exports = function arff(input) {
   });
   lines.on('line', handlers.line);
   lines.on('error', handlers.error);
-  lines.on('end', handlers.end);
+  lines.on('close', handlers.end);
 
   return emitter;
+}
+
+/*
+ * Types can be any of:
+ *  - numeric | integer | real | continuous
+ *  - string
+ *  - date [format]
+ *  - nominal
+ */
+function parseAttributeType(type) {
+  var finaltype = { type: type };
+  var parts;
+
+  if (/^date/i.test(type)) {
+    parts = type.split(/[\s]+/);
+    var format = "yyyy-MM-dd'T'HH:mm:ss";
+    if (parts.length > 1) {
+      format = parts[1];
+    }
+    finaltype = {
+      type: 'date',
+      format: format
+    }
+  }
+  else if (parts=type.match(/^{([^}]*)}$/)) {
+    finaltype.type = 'nominal';
+    finaltype.oneof = parts[1].split(/[\s]*,[\s]*/);
+  }
+  else if (/^numeric|^integer|^real|^continuous/i.test(type)) {
+    finaltype.type = 'numeric';
+  }
+  else if (/string/i.test(type)) {
+    finaltype.type = 'string';
+  }
+
+  return finaltype;
 }
