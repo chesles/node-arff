@@ -1,0 +1,24 @@
+{
+  "name": "node-arff",
+  "version": "0.0.1",
+  "description": "ARFF data file tools",
+  "main": "arfftools.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/chesles/node-arff.git"
+  },
+  "keywords": [
+    "arff",
+    "machine learning",
+    "cs478"
+  ],
+  "author": "John Chesley <john@chesl.es>",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
