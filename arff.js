@@ -41,8 +41,9 @@ module.exports = function arff(input) {
       if (!section) section = 'header';
 
       var chunks = line.trim().split(/[\s]+/);
-      if (chunks.length < 1) return;
-      // comments
+
+      // skip blank lines and comments
+      if (chunks.length === 1 && chunks[0] === '') return;
       else if (/^%/.test(chunks[0])) {
         return;
       }
@@ -58,7 +59,7 @@ module.exports = function arff(input) {
         if (section != 'header') {
           return emitter.emit('error', new Error('@ATTRIBUTE found outside of header section'));
         }
-        var name = chunks[1];
+        var name = chunks[1].replace(/:$/, '');
         var type = parseAttributeType(chunks.slice(2).join(' '));
         emitter.emit('attribute', name, type);
       }
