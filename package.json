@@ -1,13 +1,13 @@
 {
   "name": "node-arff",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "ARFF data file tools",
   "main": "arfftools.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodeunit test/test-*.js"
   },
   "repository": {
     "type": "git",

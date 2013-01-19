@@ -1,14 +1,110 @@
 var arff = require('./arff.js');
 
+var ArffData = function() {
+  this.name = ''
+  this.attributes = []
+  this.types = {}
+  this.data = []
+}
+
+ArffData.prototype = {
+  // randomly sort the values
+  randomize: function() {
+    this.data.sort(function(a, b) {
+      var rand = Math.random();
+      if (rand <= 0.45) return -1;
+      if (rand <= 0.9) return 1;
+      else return 0;
+    });
+  },
+  // return the lowest value found in col
+  min: function(col) {
+    var min
+      , idx = this.attributes.indexOf(col)
+
+    // no such column, return undefined
+    if (idx < 0) return min;
+    
+    for(var i=0; i<this.data.length; i++) {
+      var val = this.data[i][col];
+      if (min===undefined || val < min) {
+        min = val;
+      }
+    }
+    return min;
+  },
+  // return the highest value found in col
+  max: function(col) {
+    var max
+      , idx = this.attributes.indexOf(col)
+
+    // no such column, return undefined
+    if (idx < 0) return max;
+
+    for(var i=0; i<this.data.length; i++) {
+      var val = this.data[i][col];
+      if (max===undefined || val > max) {
+        max = val;
+      }
+    }
+    return max;
+  },
+  // return the mean for col
+  mean: function(col) {
+    var sum = 0
+      , count = 0
+      , idx = this.attributes.indexOf(col)
+
+    // no such column
+    if (idx < 0) return sum;
+    
+    for(var i=0; i<this.data.length; i++) {
+      var val = this.data[i][col];
+      sum += val;
+      count ++;
+    }
+    return sum / count;
+  },
+  // return the most common value for col
+  mode: function(col) {
+    var counters = {}
+      , idx = this.attributes.indexOf(col)
+      , mode
+
+    // no such column
+    if (idx < 0) return sum;
+
+    for(var i=0; i<this.data.length; i++) {
+      var val = this.data[i][col];
+      if (counters[val] === undefined)
+        counters[val] = 1;
+      else
+        counters[val]++;
+
+      if (mode===undefined || counters[val] > counters[mode])
+        mode = val;
+    }
+    return mode;
+  },
+  normalize: function() {
+    var data = this;
+    data.attributes.forEach(function(field) {
+      if (data.types[field].type == 'numeric') {
+        var min = data.min(field);
+        var max = data.max(field);
+        var range = max - min;
+        data.data.forEach(function(row) {
+          row[field] = (row[field] - min) / range;
+        });
+      }
+    });
+  },
+}
+
 var arfftools = module.exports = {
   load: function(filename, callback) {
     var file = arff(filename);
-    var arffdata = {
-      name: '',
-      attributes: [],
-      types: {},
-      data: []
-    }
+    var arffdata = new ArffData();
 
     file.on('relation', function(name) {
       arffdata.name = name;
@@ -44,5 +140,7 @@ var arfftools = module.exports = {
     file.on('end', function() {
       callback(null, arffdata);
     });
+
+    return arffdata;
   }
 }
