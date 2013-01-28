@@ -69,5 +69,13 @@ module.exports = {
     test.ok(moved > 0);
     test.ok(moved <= orig.length);
     test.done();
+  },
+  'trainingSet': function(test) {
+    var training = this.dataset.trainingSet({limit: 3})
+    test.equal(training.length, 3);
+    test.equal(training[0].expect, 0);
+    test.equal(training[1].expect, 0);
+    test.equal(training[2].expect, 1);
+    test.done();
   }
 }
