@@ -99,6 +99,23 @@ ArffData.prototype = {
       }
     });
   },
+  trainingSet: function(opts) {
+    if (!opts) opts = {}
+
+    var expect = opts.expect || this.attributes[this.attributes.length-1]
+    var fields = opts.fields || this.attributes.slice(0, this.attributes.length-1)
+    var limit = opts.limit || this.data.length;
+
+    var set = [];
+    var data = this.data;
+    for(var i=0; i < limit; i++) {
+      var sample = fields.map(function(field) {
+        return data[i][field];
+      });
+      set.push({data: sample, expect: data[i][expect]});
+    }
+    return set;
+  }
 }
 
 var arfftools = module.exports = {
@@ -127,6 +144,9 @@ var arfftools = module.exports = {
           else {
             datum = parseInt(datum);
           }
+        }
+        else if (type.type == 'nominal') {
+          datum = type.oneof.indexOf(datum);
         }
         obj[field] = datum;
       });
