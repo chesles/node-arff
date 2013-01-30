@@ -77,5 +77,18 @@ module.exports = {
     test.equal(training[1].expect, 0);
     test.equal(training[2].expect, 1);
     test.done();
+  },
+  'isolate an output class': function(test) {
+    // normally true would have a value of 0 because of the way test.arff is
+    // formatted, but if we isolate the output class 'True', all the other
+    // output classes get set to 0, and 'True' gets set to 1
+    var training = this.dataset.trainingSet({isolate: 'True'})
+    test.equal(training[0].expect, 1);
+    test.equal(training[1].expect, 1);
+    test.equal(training[2].expect, 0);
+    test.equal(training[3].expect, 1);
+    test.equal(training[4].expect, 0);
+    test.equal(training[5].expect, 1);
+    test.done();
   }
 }

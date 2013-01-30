@@ -99,6 +99,13 @@ ArffData.prototype = {
       }
     });
   },
+  // create a training set from the data
+  // options:
+  //  - expect: the field that contains the expected value (default=the last field)
+  //  - fields: fields to include in the data set (default=all fields)
+  //  - limit: limit the training set to this size (default none, includes all data)
+  //  - isolate: name of an output class to isolate; sets the 'expect' field to
+  //    1 if the expect value matches that output class, and to 0 if not
   trainingSet: function(opts) {
     if (!opts) opts = {}
 
@@ -112,9 +119,29 @@ ArffData.prototype = {
       var sample = fields.map(function(field) {
         return data[i][field];
       });
-      set.push({data: sample, expect: data[i][expect]});
+      var expected = data[i][expect];
+      if ('isolate' in opts) {
+        if (expected == this.types[expect].oneof.indexOf(opts.isolate)) {
+          expected = 1;
+        }
+        else {
+          expected = 0;
+        }
+      }
+      set.push({data: sample, expect: expected});
     }
     return set;
+  },
+  // create two training sets by randomly splitting a full training set
+  // according to some ratio
+  randomSplit: function(opts) {
+    var training = this.trainingSet(opts);
+    var split = [[], []]
+    while (training.length > 0) {
+      var set = Math.random() < opts.ratio ? 0 : 1
+      split[set].push(training.pop());
+    }
+    return split;
   }
 }
 
