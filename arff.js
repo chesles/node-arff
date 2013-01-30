@@ -59,7 +59,7 @@ module.exports = function arff(input) {
         if (section != 'header') {
           return emitter.emit('error', new Error('@ATTRIBUTE found outside of header section'));
         }
-        var name = chunks[1].replace(/:$/, '');
+        var name = chunks[1].replace(/['"]|:$/g, '');
         var type = parseAttributeType(chunks.slice(2).join(' '));
         emitter.emit('attribute', name, type);
       }
@@ -71,7 +71,7 @@ module.exports = function arff(input) {
       }
       else {
         if (section == 'data') {
-          emitter.emit('data', chunks.join('').split(','));
+          emitter.emit('data', chunks.join('').replace(/['"]/g, '').split(','));
         }
       }
     },
@@ -118,7 +118,7 @@ function parseAttributeType(type) {
   }
   else if (parts=type.match(/^{([^}]*)}$/)) {
     finaltype.type = 'nominal';
-    finaltype.oneof = parts[1].split(/[\s]*,[\s]*/);
+    finaltype.oneof = parts[1].replace(/[\s'"]/g, '').split(/,/);
   }
   else if (/^numeric|^integer|^real|^continuous/i.test(type)) {
     finaltype.type = 'numeric';
