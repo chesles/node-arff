@@ -20,5 +20,11 @@
   ],
   "author": "John Chesley <john@chesl.es>",
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "seed-random": "~2.2.0"
+  },
+  "devDependencies": {
+    "nodeunit": "~0.8.4"
+  }
 }
