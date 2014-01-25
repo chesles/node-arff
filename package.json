@@ -1,6 +1,6 @@
 {
   "name": "node-arff",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "ARFF data file tools",
   "main": "arfftools.js",
   "directories": {
