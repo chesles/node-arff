@@ -1,4 +1,5 @@
-var arff = require('./arff.js');
+var arff = require('./arff.js'),
+    seed = require('seed-random');
 
 var ArffData = function() {
   this.name = ''
@@ -8,14 +9,29 @@ var ArffData = function() {
 }
 
 ArffData.prototype = {
+  getRandom: function() {
+    if (!this.randomSeed) {
+      return Math.random();
+    } else {
+      return this.randomSeed();
+    }
+  },
+  setRandomSeed: function(s) {
+    this.randomSeed = seed(s);
+  },
   // randomly sort the values
   randomize: function() {
-    this.data.sort(function(a, b) {
-      var rand = Math.random();
+    this.randomizeArray(this.data)
+  },
+  randomizeArray: function(arr) {
+    var self = this;
+    arr.sort(function(a, b) {
+      var rand = self.getRandom();
       if (rand <= 0.45) return -1;
       if (rand <= 0.9) return 1;
       else return 0;
     });
+    return arr;
   },
   // return the lowest value found in col
   min: function(col) {
@@ -24,7 +40,7 @@ ArffData.prototype = {
 
     // no such column, return undefined
     if (idx < 0) return min;
-    
+
     for(var i=0; i<this.data.length; i++) {
       var val = this.data[i][col];
       if (min===undefined || val < min) {
@@ -57,7 +73,7 @@ ArffData.prototype = {
 
     // no such column
     if (idx < 0) return sum;
-    
+
     for(var i=0; i<this.data.length; i++) {
       var val = this.data[i][col];
       sum += val;
@@ -138,7 +154,7 @@ ArffData.prototype = {
     var training = this.trainingSet(opts);
     var split = [[], []]
     while (training.length > 0) {
-      var set = Math.random() < opts.ratio ? 0 : 1
+      var set = this.getRandom() < opts.ratio ? 0 : 1
       split[set].push(training.pop());
     }
     return split;

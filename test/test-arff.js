@@ -90,5 +90,17 @@ module.exports = {
     test.equal(training[4].expect, 0);
     test.equal(training[5].expect, 1);
     test.done();
+  },
+  'random number can be seeded to get consistent results': function(test) {
+    // should still get a random numbers that are consistent from run to run
+    this.dataset.setRandomSeed("boop");
+    var num1 = this.dataset.getRandom();
+    // reset the seed
+    this.dataset.setRandomSeed("boop");
+    var num2 = this.dataset.getRandom();
+    test.ok(num1 === num2);
+    var num3 = this.dataset.getRandom();
+    test.ok(num1 !== num3);
+    test.done();
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "node-arff",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "ARFF data file tools",
   "main": "arfftools.js",
   "directories": {
@@ -20,5 +20,11 @@
   ],
   "author": "John Chesley <john@chesl.es>",
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "seed-random": "~2.2.0"
+  },
+  "devDependencies": {
+    "nodeunit": "~0.8.4"
+  }
 }
