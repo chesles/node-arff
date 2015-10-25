@@ -36,6 +36,7 @@ module.exports = function arff(input) {
       emitter.emit('error', new Error('Unknown input:'+input));
     });
   }
+  var writeStream = fs.createWriteStream('/dev/null');
   var handlers = {
     line: function(line) {
       if (!section) section = 'header';
@@ -77,6 +78,7 @@ module.exports = function arff(input) {
     },
     end: function() {
       emitter.emit('end');
+      writeStream.end();
     },
     error: function(err) {
       emitter.emit('error', err);
@@ -85,7 +87,7 @@ module.exports = function arff(input) {
 
   lines = readline.createInterface({
     input: is,
-    output: fs.createWriteStream('/dev/null')
+    output: writeStream
   });
   lines.on('line', handlers.line);
   lines.on('error', handlers.error);
