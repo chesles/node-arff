@@ -209,12 +209,20 @@ var arfftools = module.exports = {
   },
   toString: function (data, callback) {
     var stringifier = stringify(data);
+    var contentString;
 
-    stringifier.on('error', callback);
-
-    stringifier.on('end', function (content) {
-      callback(null, content);
+    stringifier.on('error', function (err) {
+      callback(err);
     });
 
+    stringifier.on('stringified', function (content) {
+      contentString = content;
+    });
+
+    stringifier.on('end', function () {
+      callback(null, contentString);
+    });
+
+    return contentString;
   }
 }

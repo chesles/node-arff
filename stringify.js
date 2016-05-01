@@ -4,13 +4,13 @@ var fs = require('fs')
 module.exports = function stringify(data) {
   var emitter = new EventEmitter();
 
-  if (typeof data !== 'ArffData') {
+  if (!isArffData(data)) {
     return emitter.emit('error', new Error('data is not ArffData'));
   }
 
   var content = "";//TODO probably add some comments
 
-  content += "\n@RELATION " + data.name;
+  content += "\n@RELATION " + data.name + "\n";
 
   data.attributes.forEach(function (field) {
     content += "\n@ATTRIBUTE " + field + " ";
@@ -23,7 +23,7 @@ module.exports = function stringify(data) {
     }
   });
 
-  content += "\n@DATA";
+  content += "\n\n@DATA\n";
 
   data.data.forEach(function (row) {
     var values = [];
@@ -39,7 +39,29 @@ module.exports = function stringify(data) {
     content += "\n" + values.join(',');
   });
 
-  emitter.emit('end', content);
+  process.nextTick(function() {
+    emitter.emit('stringified', content);
+  });
+
+  process.nextTick(function() {
+    emitter.emit('end');
+  });
 
   return emitter;
+}
+
+function isArffData(data) {
+  if (!data.hasOwnProperty('name')) {
+    return false;
+  }
+  if (!data.hasOwnProperty('attributes')) {
+    return false;
+  }
+  if (!data.hasOwnProperty('types')) {
+    return false;
+  }
+  if (!data.hasOwnProperty('data')) {
+    return false;
+  }
+  return true
 }
