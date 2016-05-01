@@ -1,4 +1,5 @@
 var arff = require('./arff.js'),
+    stringify = require('./stringify.js'),
     seed = require('seed-random');
 
 var ArffData = function() {
@@ -205,5 +206,15 @@ var arfftools = module.exports = {
     });
 
     return arffdata;
+  },
+  toString: function (data, callback) {
+    var stringifier = stringify(data);
+
+    stringifier.on('error', callback);
+
+    stringifier.on('end', function (content) {
+      callback(null, content);
+    });
+
   }
 }
