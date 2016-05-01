@@ -18,6 +18,9 @@ module.exports = function stringify(data) {
     if (type === 'nominal') {
       content += "{" + data.types[field].oneof.join(',') + "}";
     }
+    else if (type === 'date') {
+      content += "date " + data.types[field].format;
+    }
     else {
       content += type;
     }
