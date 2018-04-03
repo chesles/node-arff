@@ -3,11 +3,11 @@ var arff = require('./arff.js'),
     seed = require('seed-random');
 
 var ArffData = function() {
-  this.name = ''
-  this.attributes = []
-  this.types = {}
-  this.data = []
-}
+  this.name = '';
+  this.attributes = [];
+  this.types = {};
+  this.data = [];
+};
 
 ArffData.prototype = {
   getRandom: function() {
@@ -22,7 +22,7 @@ ArffData.prototype = {
   },
   // randomly sort the values
   randomize: function() {
-    this.randomizeArray(this.data)
+    this.randomizeArray(this.data);
   },
   randomizeArray: function(arr) {
     var self = this;
@@ -36,15 +36,15 @@ ArffData.prototype = {
   },
   // return the lowest value found in col
   min: function(col) {
-    var min
-      , idx = this.attributes.indexOf(col)
+    var min;
+    var idx = this.attributes.indexOf(col);
 
     // no such column, return undefined
     if (idx < 0) return min;
 
     for(var i=0; i<this.data.length; i++) {
       var val = this.data[i][col];
-      if (min===undefined || val < min) {
+      if ((min===undefined || val < min) && !isNaN(val)) {
         min = val;
       }
     }
@@ -52,15 +52,15 @@ ArffData.prototype = {
   },
   // return the highest value found in col
   max: function(col) {
-    var max
-      , idx = this.attributes.indexOf(col)
+    var max;
+    var idx = this.attributes.indexOf(col);
 
     // no such column, return undefined
     if (idx < 0) return max;
 
     for(var i=0; i<this.data.length; i++) {
       var val = this.data[i][col];
-      if (max===undefined || val > max) {
+      if ((max===undefined || val > max) && !isNaN(val)) {
         max = val;
       }
     }
@@ -68,9 +68,9 @@ ArffData.prototype = {
   },
   // return the mean for col
   mean: function(col) {
-    var sum = 0
-      , count = 0
-      , idx = this.attributes.indexOf(col)
+    var sum = 0;
+    var count = 0;
+    var idx = this.attributes.indexOf(col);
 
     // no such column
     if (idx < 0) return sum;
@@ -84,9 +84,9 @@ ArffData.prototype = {
   },
   // return the most common value for col
   mode: function(col) {
-    var counters = {}
-      , idx = this.attributes.indexOf(col)
-      , mode
+    var counters = {};
+    var idx = this.attributes.indexOf(col);
+    var mode;
 
     // no such column
     if (idx < 0) return sum;
@@ -124,10 +124,10 @@ ArffData.prototype = {
   //  - isolate: name of an output class to isolate; sets the 'expect' field to
   //    1 if the expect value matches that output class, and to 0 if not
   trainingSet: function(opts) {
-    if (!opts) opts = {}
+    if (!opts) opts = {};
 
-    var expect = opts.expect || this.attributes[this.attributes.length-1]
-    var fields = opts.fields || this.attributes.slice(0, this.attributes.length-1)
+    var expect = opts.expect || this.attributes[this.attributes.length-1];
+    var fields = opts.fields || this.attributes.slice(0, this.attributes.length-1);
     var limit = opts.limit || this.data.length;
 
     var set = [];
@@ -153,14 +153,14 @@ ArffData.prototype = {
   // according to some ratio
   randomSplit: function(opts) {
     var training = this.trainingSet(opts);
-    var split = [[], []]
+    var split = [[], []];
     while (training.length > 0) {
-      var set = this.getRandom() < opts.ratio ? 0 : 1
+      var set = this.getRandom() < opts.ratio ? 0 : 1;
       split[set].push(training.pop());
     }
     return split;
   }
-}
+};
 
 var arfftools = module.exports = {
   load: function(filename, callback) {
@@ -225,4 +225,4 @@ var arfftools = module.exports = {
 
     return contentString;
   }
-}
+};
